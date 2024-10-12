@@ -8,7 +8,15 @@ const app = express();
 let counter = 0;
 const screenshot = async () => {
   try {
-    const browser = await puppeteer.launch({ timeout: 0 });
+    const browser = await puppeteer.launch({
+      args: [
+        "--start-maximized",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-notifications",
+      ],
+      timeout: 0,
+    });
     const page = await browser.newPage();
     await page.goto("https://www.sportybet.com/ng/sport/vFootball/", {
       waitUntil: "networkidle2",
