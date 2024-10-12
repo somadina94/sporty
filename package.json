@@ -1,0 +1,17 @@
+{
+  "name": "sporty",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.1",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^22.15.0"
+  }
+}
