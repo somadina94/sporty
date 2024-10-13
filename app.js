@@ -1,4 +1,6 @@
 const express = require("express");
+const dotenv = require("dotenv");
+dotenv.config({ path: "./config.env" });
 const puppeteer = require("puppeteer");
 const cron = require("node-cron");
 
@@ -35,8 +37,75 @@ const screenshot = async () => {
       }, 3000);
     });
 
-    const name = new Date().toISOString().replace(/:/g, "-");
-    const path = `screenshots/${counter}sporty-${name}.png`;
+    const data = await page.evaluate((TEAM) => {
+      let minute;
+      let teamChosed;
+      let opponent;
+      let teamIsHome;
+      let scoreHome;
+      let scoreAway;
+      let found;
+      const liveleagues = document.querySelectorAll(".live-match");
+      for (const el of liveleagues) {
+        const matches = el?.querySelectorAll(
+          ".m-table-row.m-content-row.match-row.vFootball-row"
+        );
+        for (const el of matches) {
+          const parentEl = el?.querySelector(".m-table-cell.left-team-cell");
+          const matchEl = parentEl?.querySelector(".left-team-table");
+          const timeParent = matchEl?.querySelector(".time");
+          const time = timeParent?.querySelector(".clock-time");
+          minute = time?.textContent;
+
+          const scoreEl = matchEl?.querySelector(".score");
+          const scoreItems = scoreEl?.querySelectorAll(".score-item");
+
+          scoreHome = scoreItems[0]?.textContent.trim();
+          scoreAway = scoreItems[1]?.textContent.trim();
+
+          const teamsParent = matchEl.querySelector(".teams");
+          const homeTeam = teamsParent.querySelector(".home-team");
+          const awayTeam = teamsParent.querySelector(".away-team");
+
+          if (homeTeam.textContent === TEAM) {
+            teamChosed = homeTeam.textContent;
+            opponent = awayTeam.textContent;
+            found = true;
+            teamIsHome = true;
+            break;
+          } else if (awayTeam.textContent === TEAM) {
+            teamChosed = awayTeam.textContent;
+            opponent = homeTeam.textContent;
+            found = true;
+            break;
+          }
+        }
+        if (found) {
+          break;
+        }
+      }
+      return {
+        minute,
+        teamChosed,
+        opponent,
+        scoreHome,
+        scoreAway,
+        teamIsHome,
+        found,
+      };
+    }, process.env.TEAM);
+
+    if (!data.found) {
+      return;
+    }
+
+    const shotTime = new Date().toISOString().replace(/:/g, "-");
+    const score = data.teamIsHome
+      ? `${data.teamChosed}-${data.scoreHome}-vs-${data.scoreAway}-${data.opponent}`
+      : `${data.opponent}-${data.scoreAway}-vs-${data.scoreHome}-${data.teamChosed}`;
+    const path = `screenshots/${counter}sporty-${
+      data.teamIsHome ? "HOME" : "AWAY"
+    }-${score}-${data.minute.replace(":", "-")}-${shotTime}.png`;
     await page.screenshot({
       path: path,
       fullPage: true,
@@ -55,7 +124,7 @@ cron.schedule("*/1 * * * *", () => {
 // screenshot();
 // Code End
 
-const port = 3033;
+const port = process.env.PORT || 3033;
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}`);
