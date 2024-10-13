@@ -96,7 +96,7 @@ const screenshot = async () => {
     }, process.env.TEAM);
 
     if (!data.found) {
-      return;
+      return await browser.close();
     }
 
     const shotTime = new Date().toISOString().replace(/:/g, "-");
