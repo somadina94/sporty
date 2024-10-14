@@ -95,7 +95,7 @@ const screenshot = async () => {
       };
     }, process.env.TEAM);
 
-    if (!data.found) {
+    if (!data.found || +data.minute.split(":")[0] !== 87) {
       return await browser.close();
     }
 
