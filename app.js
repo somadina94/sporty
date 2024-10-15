@@ -102,7 +102,7 @@ const screenshot = async () => {
     const shotTime = new Date().toISOString().replace(/:/g, "-");
     const score = data.teamIsHome
       ? `${data.teamChosed}-${data.scoreHome}-vs-${data.scoreAway}-${data.opponent}`
-      : `${data.opponent}-${data.scoreAway}-vs-${data.scoreHome}-${data.teamChosed}`;
+      : `${data.opponent}-${data.scoreHome}-vs-${data.scoreAway}-${data.teamChosed}`;
     const path = `screenshots/${counter}sporty-${
       data.teamIsHome ? "HOME" : "AWAY"
     }-${score}-${data.minute.replace(":", "-")}-${shotTime}.png`;
